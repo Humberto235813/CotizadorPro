@@ -1,0 +1,60 @@
+:root {
+  --brand:#364FC7;
+  --text:#1B2430;
+  --muted:#5b6275;
+  --radius:10px;
+  --page-width:816px;
+  --gap:1rem;
+  --font-stack:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-base:13px;
+  --leading-tight:1.25;
+  --leading-normal:1.45;
+}
+.print-root { width:var(--page-width); background:#fff; color:var(--text); font-family:var(--font-stack); font-size:var(--font-size-base); box-sizing:border-box; transform-origin:top left; letter-spacing:.15px; }
+.print-header { padding:2rem 3.75rem 1.4rem; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; background:#fff; }
+.print-header:after { content:""; position:absolute; left:3.75rem; right:3.75rem; bottom:0; height:4px; background:linear-gradient(90deg,#364FC7 0%,#6A11CB 100%); border-radius:4px; }
+.print-header h1 { margin:.5rem 0 .2rem; font-size:1.9rem; font-weight:800; letter-spacing:.6px; line-height:1.05; background:linear-gradient(90deg,#364FC7,#6A11CB); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.print-brand { display:flex; flex-direction:column; align-items:center; gap:.35rem; }
+.print-brand img { max-width:180px; max-height:70px; object-fit:contain; }
+.print-brand .brand-name { font-size:.92rem; font-weight:600; letter-spacing:.45px; color:#1B2430; }
+.print-header .meta-line { margin-top:.1rem; font-size:0.72rem; font-weight:500; color:#5b6275; letter-spacing:.55px; }
+
+.print-body { padding:1.9rem 3.75rem 2.8rem; }
+.section-grid { display:flex; gap:2.25rem; align-items:flex-start; margin-bottom:2rem; }
+.info-columns { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:1.75rem 2rem; }
+.block-title { font-weight:700; font-size:0.9rem; color:var(--brand); letter-spacing:.5px; margin:0 0 .5rem; }
+.small-text { font-size:.79rem; line-height:1.15rem; }
+.detail-box, .totals-box { border:1px solid var(--brand); border-radius:var(--radius); background:#fff; }
+.detail-box { flex:1; padding:0.9rem 1.1rem; font-size:.72rem; display:grid; grid-template-columns:112px 1fr; row-gap:.42rem; }
+.detail-box .heading { grid-column:1 / span 2; font-weight:700; font-size:.83rem; color:var(--brand); margin-bottom:.25rem; letter-spacing:.4px; }
+.detail-box div:nth-child(odd){ font-weight:600; }
+.totals-box { width:240px; padding:.9rem 1rem; font-size:.8rem; font-family:var(--font-stack); }
+.totals-box .line { display:flex; justify-content:space-between; margin-bottom:.4rem; }
+.totals-box .divider { height:1px; background:#E0E6F5; margin:.6rem 0 .5rem; }
+.totals-box .grand { display:flex; justify-content:space-between; font-size:1rem; font-weight:700; }
+.totals-box .grand span:last-child { color:var(--brand); }
+
+.items-table { width:100%; border-collapse:collapse; font-size:.73rem; }
+.items-table th { background:var(--brand); color:#fff; padding:5px 6px; font-weight:600; letter-spacing:.3px; }
+.items-table td { padding:5px 6px; border-bottom:1px solid #E4E9F2; }
+.items-table tbody tr:nth-child(odd){ background:#F8FAFE; }
+.items-table .col-idx { width:5%; text-align:center; }
+.items-table .col-desc { width:50%; text-align:left; white-space:pre-wrap; }
+.items-table .col-qty { width:8%; text-align:center; }
+.items-table .col-unit, .items-table .col-imp { width:15%; text-align:right; }
+
+.dual-notes { margin-top:1.8rem; display:grid; grid-template-columns:1fr 1fr; gap:1.75rem; }
+.single-notes { margin-top:1.8rem; }
+.note-block .note-title { font-weight:700; font-size:.8rem; color:var(--brand); margin:0 0 .5rem; letter-spacing:.4px; }
+.note-block .note-text { font-size:.66rem; line-height:1.0rem; white-space:pre-wrap; }
+
+.bank-block { margin-top:1.9rem; }
+.bank-block .bank-title { font-weight:700; font-size:.85rem; color:var(--brand); margin:0 0 .4rem; letter-spacing:.4px; }
+.bank-block .bank-text { font-size:.66rem; line-height:1.0rem; white-space:pre-wrap; }
+.disclaimer { margin-top:1.9rem; font-size:.55rem; line-height:.8rem; color:var(--muted); letter-spacing:.25px; }
+.footer-note { margin-top:1rem; font-size:.62rem; font-style:italic; color:#566; letter-spacing:.35px; }
+
+@media print {
+  body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-root { box-shadow:none; }
+}

@@ -1,0 +1,176 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════════════════════════════
+    // Helper functions
+    // ═══════════════════════════════════════════
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Validates that a string field exists and is non-empty
+    function hasString(field) {
+      return field is string && field.size() > 0;
+    }
+
+    // Checks the incoming data for a specific field
+    function incomingData() {
+      return request.resource.data;
+    }
+
+    // Checks existing data
+    function existingData() {
+      return resource.data;
+    }
+
+    // ═══════════════════════════════════════════
+    // Users — SEC-03 fix: role field is IMMUTABLE by non-admins
+    // ═══════════════════════════════════════════
+    match /users/{userId} {
+      allow read: if isAuth();
+
+      // Only allow create if the user is creating their OWN profile
+      // AND the role field is NOT 'admin' (prevents self-escalation on create)
+      allow create: if isOwner(userId)
+                    && incomingData().role == 'user';
+
+      // Users can update their OWN profile, BUT cannot change their role
+      // Only admins can change role
+      allow update: if isOwner(userId)
+                    && (!('role' in request.resource.data)
+                        || request.resource.data.role == resource.data.role)
+                    || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // Special rule: Allow the FIRST user to be created as admin
+    // This is handled server-side in firebase.ts, but we need a
+    // fallback for the initial admin setup
+    match /users/{userId} {
+      allow create: if isOwner(userId)
+                    && incomingData().role == 'admin'
+                    && isAdmin();
+    }
+
+    // ═══════════════════════════════════════════
+    // Companies — only admins can write
+    // SEC-10: field validation
+    // ═══════════════════════════════════════════
+    match /companies/{companyId} {
+      allow read: if isAuth();
+      allow create: if isAdmin()
+                    && hasString(incomingData().name);
+      allow update: if isAdmin()
+                    && hasString(incomingData().name);
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════
+    // Quotes — SEC-02: createdBy field + ownership
+    // SEC-10: field validation
+    // ═══════════════════════════════════════════
+    match /quotes/{quoteId} {
+      allow read: if isAuth();
+      allow create: if isAuth()
+                    && incomingData().createdBy == request.auth.uid
+                    && hasString(incomingData().quoteNumber);
+      // Owner or admin can update/delete
+      allow update: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+      allow delete: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+    }
+
+    // ═══════════════════════════════════════════
+    // CRM Contacts — SEC-02: createdBy + ownership
+    // ═══════════════════════════════════════════
+    match /contacts/{contactId} {
+      allow read: if isAuth();
+      allow create: if isAuth()
+                    && incomingData().createdBy == request.auth.uid
+                    && hasString(incomingData().name);
+      allow update: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+      allow delete: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+    }
+
+    // ═══════════════════════════════════════════
+    // CRM Deals — SEC-02: createdBy + ownership
+    // ═══════════════════════════════════════════
+    match /deals/{dealId} {
+      allow read: if isAuth();
+      allow create: if isAuth()
+                    && incomingData().createdBy == request.auth.uid
+                    && hasString(incomingData().title);
+      allow update: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+      allow delete: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+    }
+
+    // ═══════════════════════════════════════════
+    // CRM Activities — SEC-02: createdBy + ownership
+    // ═══════════════════════════════════════════
+    match /activities/{activityId} {
+      allow read: if isAuth();
+      allow create: if isAuth()
+                    && incomingData().createdBy == request.auth.uid
+                    && hasString(incomingData().title);
+      allow update: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+      allow delete: if isAuth()
+                    && (existingData().createdBy == request.auth.uid || isAdmin());
+    }
+
+    // ═══════════════════════════════════════════
+    // Product catalog — admin-only write
+    // ═══════════════════════════════════════════
+    match /products/{productId} {
+      allow read: if isAuth();
+      allow create, update: if isAdmin()
+                            && hasString(incomingData().name);
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════
+    // Mail queue — EmailCampaignPage
+    // Only auth users can create, admin-only read
+    // ═══════════════════════════════════════════
+    match /mail/{mailId} {
+      allow read: if isAdmin();
+      allow create: if isAuth()
+                    && incomingData().createdBy == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ═══════════════════════════════════════════
+    // Audit log — immutable, admin-read
+    // ═══════════════════════════════════════════
+    match /auditLog/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuth()
+                    && incomingData().userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ═══════════════════════════════════════════
+    // Deny everything else
+    // ═══════════════════════════════════════════
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
