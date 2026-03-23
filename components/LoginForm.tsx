@@ -304,7 +304,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onRegister, onResetPassw
                 </div>
 
                 <p className="text-center text-white/60 text-sm mt-6">
-                    © 2026 CRM Pro. Todos los derechos reservados.
+                    © 2026 CRM by Servicios GRV. Todos los derechos reservados.
                 </p>
             </div>
         </div>

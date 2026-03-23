@@ -102,10 +102,11 @@ const Sidebar: React.FC = () => {
         {/* Logo */}
         <div className="flex items-center justify-between mb-4 p-3">
           <div className="flex items-center">
-            <div className="bg-gradient-to-tr from-indigo-500 to-cyan-400 p-2 rounded-lg">
-              <BriefcaseIcon className="text-white h-5 w-5" />
+            <img src="/logo-grv.png" alt="GRV" className="h-9 w-9 rounded-lg object-cover" />
+            <div className="ml-3">
+              <h1 className="text-sm font-bold text-gray-800 dark:text-white leading-tight">CRM</h1>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">by Servicios GRV</p>
             </div>
-            <h1 className="text-lg font-bold ml-3 text-gray-800 dark:text-white">CRM Pro</h1>
           </div>
           <button
             type="button"
@@ -144,7 +145,7 @@ const Sidebar: React.FC = () => {
 
         {/* Footer */}
         <div className="mt-auto text-[10px] text-gray-400 dark:text-gray-500 px-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
-          CRM Pro v2.0
+          CRM by Servicios GRV v3.0
         </div>
       </aside>
     </>

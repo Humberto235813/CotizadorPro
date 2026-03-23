@@ -121,7 +121,7 @@ const EmailCampaignPage: React.FC = () => {
       .replace(/\{\{nombre\}\}/g, contact.name || 'Cliente')
       .replace(/\{\{empresa\}\}/g, contact.company || '')
       .replace(/\{\{email\}\}/g, contact.email || '')
-      .replace(/\{\{remitente\}\}/g, user?.displayName || user?.email || 'CRM Pro')
+      .replace(/\{\{remitente\}\}/g, user?.displayName || user?.email || 'CRM by Servicios GRV')
       .replace(/\{\{mes\}\}/g, month);
   };
 

@@ -38,11 +38,11 @@ const UserProfileHeader: React.FC = () => {
   };
 
   return (
-    <div className="mb-4 flex justify-end items-center gap-3">
+    <div className="mb-4 flex justify-end items-center gap-3 pr-1">
       {/* Theme Toggle */}
       <button
         onClick={toggleTheme}
-        className="p-2 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600 hover:scale-105 transition-all shadow-sm"
+        className="p-2 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600 hover:scale-105 transition-all shadow-sm shrink-0"
         title={isDark ? 'Modo claro' : 'Modo oscuro'}
       >
         {isDark ? (
@@ -59,7 +59,7 @@ const UserProfileHeader: React.FC = () => {
       {/* Shortcut hint */}
       <button
         onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-        className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 text-xs hover:border-indigo-300 transition-all shadow-sm"
+        className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 text-xs hover:border-indigo-300 transition-all shadow-sm shrink-0"
         title="Búsqueda global (⌘K)"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -68,7 +68,7 @@ const UserProfileHeader: React.FC = () => {
       </button>
 
       {/* User Info */}
-      <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-2xl px-4 py-2.5 shadow-sm border border-gray-100 dark:border-gray-600 flex items-center gap-3">
+      <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-2xl px-4 py-2.5 shadow-sm border border-gray-100 dark:border-gray-600 flex items-center gap-3 min-w-0">
         <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-inner shrink-0">
           {initials}
         </div>
@@ -112,17 +112,18 @@ const UserProfileHeader: React.FC = () => {
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium"
-          title="Cerrar sesión"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Salir
-        </button>
       </div>
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="p-2 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:scale-105 transition-all shadow-sm shrink-0 group"
+        title="Cerrar sesión"
+      >
+        <svg className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
     </div>
   );
 };

@@ -98,7 +98,7 @@ const AppLayout: React.FC = () => {
       <CommandPalette />
       <div className="flex h-screen p-4 gap-4">
         <Sidebar />
-        <div className="flex-1 h-full overflow-y-auto pr-2">
+        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden pr-4">
           <UserProfileHeader />
           <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
