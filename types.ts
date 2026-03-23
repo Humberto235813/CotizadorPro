@@ -37,7 +37,7 @@ export interface Quote {
   discount?: number; // Descuento global opcional
   currency?: 'MXN' | 'USD';
   contactId?: string; // Vinculación con CRM Contact
-  vigenciaDias?: 30 | 60 | 90; // Vigencia de la cotización en días
+  vigenciaDias?: number; // Vigencia de la cotización en días
 
   // Status and metadata
   status: 'draft' | 'created' | 'sold';
@@ -66,6 +66,8 @@ export interface UserProfile {
   displayName: string;
   photoURL?: string;
   role: 'admin' | 'user';
+  companyId?: string;  // Empresa asignada
+  status: 'pending' | 'active' | 'disabled';
   createdAt: string;
   lastLogin: string;
   preferences?: {

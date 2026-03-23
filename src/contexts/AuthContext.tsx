@@ -16,6 +16,8 @@ interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  isAdmin: boolean;
+  isPending: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
   handleLogout: () => Promise<void>;
@@ -35,6 +37,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const isAdmin = userProfile?.role === 'admin';
+  const isPending = userProfile?.status === 'pending';
 
   useEffect(() => {
     const unsub = onAuthChange(async (u) => {
@@ -57,7 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (email: string, password: string, displayName: string) => {
     await registerWithEmail(email, password, displayName);
-    toast.success('¡Cuenta creada exitosamente!');
+    toast.success('¡Cuenta creada! Un administrador debe aprobar tu acceso.');
   };
 
   const handleLogout = async () => {
@@ -84,6 +89,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         userProfile,
         loading,
+        isAdmin,
+        isPending,
         login,
         register,
         handleLogout,

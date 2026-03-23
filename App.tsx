@@ -23,6 +23,7 @@ const CalendarPage = lazy(() => import('./src/pages/CalendarPage'));
 const SettingsPage = lazy(() => import('./src/pages/SettingsPage'));
 const AuditLogPage = lazy(() => import('./src/pages/AuditLogPage'));
 const EmailCampaignPage = lazy(() => import('./src/pages/EmailCampaignPage'));
+const UserManagementPage = lazy(() => import('./src/pages/UserManagementPage'));
 
 // ── Loading fallback ──
 const PageLoader: React.FC = () => (
@@ -39,7 +40,7 @@ const PageLoader: React.FC = () => (
 
 // ── Protected route wrapper ──
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isPending, handleLogout } = useAuth();
 
   if (loading) {
     return (
@@ -50,6 +51,25 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   if (!user) return <Navigate to="/login" replace />;
+
+  // Pending approval screen
+  if (isPending) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-cyan-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-10 max-w-md text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-2xl mb-6">
+            <svg className="w-10 h-10 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">Cuenta Pendiente de Aprobación</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">Tu cuenta ha sido creada exitosamente. Un administrador debe aprobar tu acceso antes de que puedas utilizar el sistema.</p>
+          <button onClick={handleLogout} className="px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 };
 
@@ -97,6 +117,7 @@ const AppLayout: React.FC = () => {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/audit-log" element={<AuditLogPage />} />
               <Route path="/email" element={<EmailCampaignPage />} />
+              <Route path="/users" element={<UserManagementPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>

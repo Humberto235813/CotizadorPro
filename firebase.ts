@@ -12,7 +12,7 @@ interface ImportMeta {
   env: ImportMetaEnv;
 }
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, getDocs, query, limit } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import {
   getAuth,
@@ -64,15 +64,14 @@ export const createOrUpdateUserProfile = async (user: User): Promise<void> => {
       throw new Error('DOMAIN_NOT_ALLOWED');
     }
 
-    // New users always get 'user' role.
-    // Admin role must be granted manually by an existing admin.
-    const role: UserProfile['role'] = 'user';
-
+    // New users always get 'user' role and 'pending' status.
+    // Admin must approve and assign company.
     const newProfile: Omit<UserProfile, 'photoURL'> & { photoURL?: string } = {
       uid: user.uid,
       email: user.email || '',
       displayName: user.displayName || '',
-      role,
+      role: 'user',
+      status: 'pending',
       createdAt: now,
       lastLogin: now,
       preferences: {
@@ -86,11 +85,17 @@ export const createOrUpdateUserProfile = async (user: User): Promise<void> => {
 
     await setDoc(userRef, newProfile);
   } else {
-    // Existing user — just update lastLogin
-    const updateData: Partial<UserProfile> = {
+    // Existing user — update lastLogin + migrate status if missing
+    const existingData = userSnap.data() as UserProfile;
+    const updateData: Record<string, unknown> = {
       lastLogin: now,
       displayName: user.displayName || '',
     };
+
+    // Migration: existing users without status get 'active'
+    if (!existingData.status) {
+      updateData.status = 'active';
+    }
 
     if (user.photoURL) {
       updateData.photoURL = user.photoURL;
@@ -156,6 +161,24 @@ export const onAuthChange = (callback: (user: User | null) => void) => {
 export const updateUserDisplayName = async (name: string): Promise<void> => {
   if (!auth.currentUser) throw new Error('No hay usuario autenticado');
   await updateProfile(auth.currentUser, { displayName: name });
+};
+
+/* ──────────────── User Management (Admin) ──────────────── */
+
+/** Get all users from Firestore (admin only) */
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt')));
+  return snap.docs.map(d => d.data() as UserProfile);
+};
+
+/** Update a user's profile fields (admin only) */
+export const adminUpdateUser = async (uid: string, data: Partial<UserProfile>): Promise<void> => {
+  await setDoc(doc(db, 'users', uid), data, { merge: true });
+};
+
+/** Delete a user profile from Firestore (admin only) */
+export const adminDeleteUser = async (uid: string): Promise<void> => {
+  await deleteDoc(doc(db, 'users', uid));
 };
 
 export { db, storage, auth };

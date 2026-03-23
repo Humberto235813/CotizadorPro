@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { Company, Quote, Contact, Deal, Activity } from '../../types';
 import { db, storage } from '../../firebase';
 import {
@@ -60,21 +60,27 @@ export const useData = (): DataContextType => {
 /* ──────────────── Provider ──────────────── */
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, userProfile, isAdmin } = useAuth();
 
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [allQuotes, setAllQuotes] = useState<Quote[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // ── Filter quotes by company for non-admin users ──
+  const quotes = useMemo(() => {
+    if (isAdmin || !userProfile?.companyId) return allQuotes;
+    return allQuotes.filter(q => q.companyId === userProfile.companyId);
+  }, [allQuotes, isAdmin, userProfile?.companyId]);
+
   // ── Real-time listeners (single source of truth) ──
   useEffect(() => {
     if (!user) {
       setCompanies([]);
-      setQuotes([]);
+      setAllQuotes([]);
       setContacts([]);
       setDeals([]);
       setActivities([]);
@@ -104,7 +110,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ),
       onSnapshot(
         query(collection(db, 'quotes'), orderBy('date')),
-        (snap) => { setQuotes(snap.docs.map(d => ({ ...d.data(), id: d.id } as Quote))); checkLoaded(); },
+        (snap) => { setAllQuotes(snap.docs.map(d => ({ ...d.data(), id: d.id } as Quote))); checkLoaded(); },
         handleError
       ),
       onSnapshot(
